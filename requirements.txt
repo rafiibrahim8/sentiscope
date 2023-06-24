@@ -1,0 +1,4 @@
+Flask
+emoji
+gunicorn
+transformers[torch]==4.30.2

@@ -1,0 +1,31 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unittests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - run: pip install -r requirements.txt
+      - run: python -m unittest -v
+  
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          docker build -t sentiscope .
+          docker run -d -p 5000:5000 sentiscope
+          sleep 20 # wait for the server to start
+          curl --fail-with-body -X POST -H "Content-Type: application/json" -d '{"text": "I love this project!"}' http://localhost:5000/api/v1/analyze
+          docker stop $(docker ps -q)
